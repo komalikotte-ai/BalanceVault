@@ -110,5 +110,5 @@ I also resolved a Windows file-locking issue that prevented Maven from cleaning 
 
 \### Related commit
 
-Pending backend foundation commit.
+https://github.com/komalikotte-ai/ledgerline/commit/a7147da
 
