@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -30,15 +31,18 @@ public class AccountService {
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
     private final AccountOpeningRequestRepository requestRepository;
+    private final AuditService auditService;
 
     public AccountService(
             UserRepository userRepository,
             AccountRepository accountRepository,
-            AccountOpeningRequestRepository requestRepository
+            AccountOpeningRequestRepository requestRepository,
+            AuditService auditService
     ) {
         this.userRepository = userRepository;
         this.accountRepository = accountRepository;
         this.requestRepository = requestRepository;
+        this.auditService = auditService;
     }
 
     @Transactional
@@ -136,6 +140,14 @@ public class AccountService {
         request.approve(reviewer, account, reviewNote);
         requestRepository.save(request);
 
+        auditService.record(
+                reviewerId,
+                "ACCOUNT_REQUEST_APPROVED",
+                "ACCOUNT_OPENING_REQUEST",
+                request.getId(),
+                auditDetails(applicant.getId(), account.getId(), reviewNote)
+        );
+
         return toRequestResponse(request);
     }
 
@@ -158,9 +170,28 @@ public class AccountService {
         request.reject(reviewer, reviewNote);
         requestRepository.save(request);
 
+        auditService.record(
+                reviewerId,
+                "ACCOUNT_REQUEST_REJECTED",
+                "ACCOUNT_OPENING_REQUEST",
+                request.getId(),
+                auditDetails(request.getApplicant().getId(), null, reviewNote)
+        );
+
         return toRequestResponse(request);
     }
 
+    private Map<String, Object> auditDetails(
+            UUID applicantId,
+            UUID accountId,
+            String reviewNote
+    ) {
+        Map<String, Object> details = new java.util.LinkedHashMap<>();
+        details.put("applicantUserId", applicantId);
+        details.put("accountId", accountId);
+        details.put("reviewNote", reviewNote);
+        return details;
+    }
     private AppUser getActiveAdmin(UUID reviewerId) {
         AppUser reviewer = userRepository.findById(reviewerId)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -237,3 +268,4 @@ public class AccountService {
         );
     }
 }
+
