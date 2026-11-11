@@ -15,6 +15,8 @@ const envSchema = z.object({
 
   JWT_EXPIRES_IN: z.string().default("15m"),
 
+  REDIS_URL: z.string().url(),
+
   COOKIE_SECURE: z
     .enum(["true", "false"])
     .default("false")

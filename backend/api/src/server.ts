@@ -5,10 +5,15 @@ import {
   connectDatabase,
   disconnectDatabase
 } from "./config/database";
+import {
+  connectRedis,
+  disconnectRedis
+} from "./config/redis";
 
 async function startServer(): Promise<void> {
   try {
     await connectDatabase();
+    await connectRedis();
 
     const server = app.listen(env.PORT, () => {
       console.log(`BalanceVault API running on port ${env.PORT}`);
@@ -16,13 +21,27 @@ async function startServer(): Promise<void> {
       console.log(`Ready:  http://localhost:${env.PORT}/api/v1/ready`);
     });
 
+    let shuttingDown = false;
+
     const shutdown = (signal: string): void => {
+      if (shuttingDown) return;
+      shuttingDown = true;
+
       console.log(`${signal} received. Shutting down...`);
 
       server.close(async () => {
-        await disconnectDatabase();
-        console.log("Server and database connection closed.");
-        process.exit(0);
+        try {
+          await Promise.all([
+            disconnectDatabase(),
+            disconnectRedis()
+          ]);
+
+          console.log("Server, database and Redis connections closed.");
+          process.exit(0);
+        } catch (error) {
+          console.error("Shutdown error:", error);
+          process.exit(1);
+        }
       });
     };
 
@@ -30,7 +49,12 @@ async function startServer(): Promise<void> {
     process.on("SIGTERM", () => shutdown("SIGTERM"));
   } catch (error) {
     console.error("Failed to start BalanceVault API:", error);
-    await disconnectDatabase();
+
+    await Promise.allSettled([
+      disconnectDatabase(),
+      disconnectRedis()
+    ]);
+
     process.exit(1);
   }
 }
