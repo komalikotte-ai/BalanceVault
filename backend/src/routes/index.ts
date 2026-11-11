@@ -1,0 +1,36 @@
+import { Router } from 'express';
+import { healthRouter } from './health.routes.js';
+import { authRouter } from './auth.routes.js';
+import { onboardingRouter, adminOnboardingRouter } from './onboarding.routes.js';
+import { accountRouter, adminAccountRouter } from './account.routes.js';
+import transactionRouter from './transaction.routes.js';
+import { protectedDemoRouter } from './protected-demo.routes.js';
+import { auditorRouter } from './auditor.routes.js';
+
+export const apiRouter = Router();
+
+// System health & readiness
+apiRouter.use(healthRouter);
+
+// Authentication & Identity
+apiRouter.use('/auth', authRouter);
+
+// Account Onboarding Flow
+apiRouter.use('/onboarding', onboardingRouter);
+
+// Financial Accounts
+apiRouter.use('/accounts', accountRouter);
+
+// Core Financial Operations & Double-Entry Ledger
+apiRouter.use('/transactions', transactionRouter);
+
+// Admin Operations (Onboarding review & account administration)
+apiRouter.use('/admin', adminOnboardingRouter);
+apiRouter.use('/admin', adminAccountRouter);
+
+// Read-only compliance views
+apiRouter.use('/auditor', auditorRouter);
+
+// Protected RBAC and Ownership demonstration routes
+apiRouter.use(protectedDemoRouter);
+

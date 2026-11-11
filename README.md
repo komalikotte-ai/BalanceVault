@@ -1,151 +1,142 @@
-# LedgerLine
+# BalanceVault
 
-**Money movement with a ledger you can prove.**
+> Money movement with a ledger you can prove.
 
-LedgerLine is a financial transaction management system being developed to support secure money movement, prevent duplicate transactions, enforce account-level authorization, and maintain a traceable financial ledger.
+BalanceVault is a role-based account management and money-movement application built with React, Express, TypeScript, PostgreSQL and Prisma. It demonstrates account onboarding, account management, deposits, withdrawals, transfers, double-entry ledger records and audit visibility.
 
-## Project Status
+## Features
 
-**Status:** Under active development  
-**Challenge:** Snovasys Fresher Hiring Challenge 2026
+- Registration, login, access-token authentication and HttpOnly refresh-token cookie.
+- Roles: `ADMIN`, `ACCOUNT_HOLDER`, `AUDITOR`.
+- Account-holder onboarding submission and Admin review.
+- Checking and savings account creation, balance lookup and Admin status controls.
+- Deposits, withdrawals and transfers with database transactions, account-row locks, idempotency keys and paired debit/credit entries.
+- Transaction history with ownership scoping for account holders.
+- Read-only Auditor workspace for audit events.
+- Audit logging and Redis rate limiting with an in-memory local fallback.
 
-The initial PostgreSQL database schema has been implemented and successfully applied using Flyway. Authentication, transaction processing, ledger posting, frontend integration, and deployment remain under development.
+**Demo currency:** the current Prisma schema and seed data use USD with four decimal places. This is a demo configuration, not a multi-currency payment processor. Do not change only the UI currency symbol; changing currency requires coordinated database, validation, ledger and test changes.
 
-## Technology Stack
+## Technology
 
-| Component | Technology |
-|---|---|
-| Frontend | React, Vite, JavaScript |
-| Backend | Java 21, Spring Boot 4 |
-| Backend security foundation | Spring Security |
-| Database | PostgreSQL 18 |
-| Database migrations | Flyway |
-| Persistence | Spring Data JPA |
-| Validation | Jakarta Bean Validation |
-| Testing | JUnit 5, Spring Boot Test |
-| Build tool | Maven |
+- Frontend: React 18, TypeScript, Vite, React Router, Lucide
+- Backend: Node.js 18+, Express 4, TypeScript, Zod
+- Database: PostgreSQL 14+, Prisma 5
+- Security: Argon2, JWT access tokens, HttpOnly refresh cookie, role checks, Helmet, rate limiting
 
-JWT authentication is planned but not yet implemented.
+## Windows setup (VS Code)
 
-## Planned Features
+### 1. Prerequisites
 
-1. Administrator, account-holder, and auditor authentication.
-2. Server-side role-based authorization.
-3. Account creation and management.
-4. Deposits, withdrawals, and transfers.
-5. Double-entry ledger and money-conservation checks.
-6. Idempotent transaction processing.
-7. Concurrency protection and atomic database operations.
-8. Append-only audit trail and transaction statements.
-9. Account ownership and auditor access controls.
-10. Automated security, transaction, and concurrency tests.
-11. Role-based React dashboards and API integration.
-12. Deployment, API documentation, seed accounts, and demo video.
+Install Node.js 18 or later and PostgreSQL 14 or later. Redis is optional for local development; the backend falls back to an in-memory rate limiter when Redis is unavailable. In-memory rate limits are per-process and are not suitable for multi-instance production deployment.
 
-## Implemented So Far
+### 2. Configure the backend
 
-- React and Vite frontend foundation.
-- Spring Boot backend foundation.
-- PostgreSQL database configuration.
-- Flyway migration for the core banking schema.
-- Database tables for users, accounts, account-opening requests, transactions, ledger entries, audit events, and auditor access.
-- Database constraints for positive transaction amounts and non-negative customer account balances.
-- Unique idempotency-key constraint per initiating user.
-- Database trigger preventing ordinary updates and deletes of audit events.
-- Initial external funding and payout system accounts.
-
-These database features do not mean the corresponding application workflows are complete. Application-level transaction processing, authorization, and ledger balancing are still under development.
-
-## Database Design
-
-Monetary values are stored as integer paise to avoid floating-point rounding errors.
-
-Example:
-
-- ₹100.00 = 10000 paise
-- ₹250.50 = 25050 paise
-
-PostgreSQL schema changes are managed through Flyway migrations.
-
-## Project Structure
-
-```text
-LedgerLine/
-├── backend/
-│   └── ledgerline/
-├── frontend/
-├── docs/
-├── screenshots/
-├── README.md
-├── PROMPTS.md
-├── THREATS.md
-└── .gitignore
-```
-
-## Local Development
-
-### Prerequisites
-
-- Java 21
-- Maven (Maven Wrapper is included)
-- Node.js and npm
-- PostgreSQL
-
-### Backend
-
-From the repository root:
+Open the extracted `BalanceVault-main` folder in VS Code. In CMD from that folder:
 
 ```cmd
-cd backend\ledgerline
+copy backend\.env.example backend\.env
 ```
 
-Set the database password in your CMD session:
+Edit `backend\.env` and set `DATABASE_URL` to your local PostgreSQL database. Example:
 
-```cmd
-set "DB_PASSWORD=YOUR_DATABASE_PASSWORD"
+```env
+DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/balancevault_db?schema=public"
+CORS_ORIGIN="http://localhost:5173"
 ```
 
-Start the backend:
+Create an empty PostgreSQL database named `balancevault_db` using pgAdmin or your PostgreSQL tool.
+
+### 3. Install packages and prepare the database
+
+Run from the project root:
 
 ```cmd
-mvnw.cmd spring-boot:run
-```
-
-The backend uses port `8081`.
-
-### Frontend
-
-From the repository root, open another CMD window:
-
-```cmd
-cd frontend
 npm install
-npm run dev
+npm run prisma:generate --workspace=backend
+npm run prisma:migrate --workspace=backend
 ```
 
-The Vite development server normally uses port `5173`.
-
-### Backend Tests
+To load synthetic demo users and accounts into a **fresh, disposable database only**:
 
 ```cmd
-cd backend\ledgerline
-mvnw.cmd test
+npm run db:seed --workspace=backend
 ```
 
-Use `mvnw.cmd clean test` when the Windows build directory is not locked by another process.
+The seed script refuses to run if the database already contains users. It does not delete existing data.
 
-## Security
+Demo credentials after seeding:
 
-Security controls are being implemented incrementally. See [THREATS.md](THREATS.md) for identified threats, current protections, and remaining work.
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@balancevault.local | DemoPass123! |
+| Auditor | auditor@balancevault.local | DemoPass123! |
+| Account holder | alice@example.com | DemoPass123! |
+| Pending onboarding | bob@example.com | DemoPass123! |
 
-## AI-Assisted Development
+These are public demo credentials. Never use them in a deployed environment.
 
-AI-assisted development is documented transparently in [PROMPTS.md](PROMPTS.md), including prompts, generated output, corrections, verification, and related commits.
+### 4. Start the backend
 
-## Project Repository
+Terminal 1:
 
-https://github.com/komalikotte-ai/ledgerline
+```cmd
+npm run dev:backend
+```
 
-## Disclaimer
+API: `http://localhost:5000`
 
-LedgerLine is a challenge project under development. It is not a production banking system and must not be used to process real customer funds.
+- Health: `http://localhost:5000/api/v1/health`
+- Readiness: `http://localhost:5000/api/v1/ready`
+
+### 5. Start the frontend
+
+Terminal 2:
+
+```cmd
+npm run dev:frontend
+```
+
+Open `http://localhost:5173`.
+
+### 6. Run tests and production builds
+
+```cmd
+npm test
+npm run build
+```
+
+The current Vitest suite connects through `DATABASE_URL` and expects the demo seed data. Point `DATABASE_URL` at a disposable test database before running tests. Do not run the demo seed against a database containing personal or important data.
+
+## Main API routes
+
+| Method | Route | Access |
+|---|---|---|
+| POST | `/api/v1/auth/register` | Public; creates Account Holder only |
+| POST | `/api/v1/auth/login` | Public |
+| GET | `/api/v1/auth/me` | Authenticated |
+| POST | `/api/v1/onboarding/submit` | Authenticated user |
+| GET | `/api/v1/onboarding/status` | Authenticated user |
+| GET | `/api/v1/admin/onboardings` | Admin |
+| PATCH | `/api/v1/admin/onboardings/:id/review` | Admin |
+| GET/POST | `/api/v1/accounts` | Authenticated; scoped by role |
+| PATCH | `/api/v1/admin/accounts/:id/status` | Admin |
+| POST | `/api/v1/transactions/deposit` | Account owner or Admin |
+| POST | `/api/v1/transactions/withdraw` | Account owner or Admin |
+| POST | `/api/v1/transactions/transfer` | Account owner or Admin |
+| GET | `/api/v1/transactions` | Account Holder scoped; Admin/Auditor read-only global view |
+| GET | `/api/v1/auditor/audit-logs` | Auditor or Admin, read-only |
+
+Financial mutation requests accept an `Idempotency-Key` header or an `idempotencyKey` body property. Reuse the same key only when retrying the exact same request.
+
+## Important limitations before production
+
+- This is an educational/demo application. It is not a regulated banking platform and has not undergone an independent security audit.
+- The Auditor role currently has read-only platform-wide visibility; per-account auditor grants/revocations are not implemented.
+- The audit feed is a read-only list of recorded events; advanced filters and export are not implemented.
+- The current access token is returned to the frontend and stored by the supplied frontend in browser local storage. The refresh token is HttpOnly. For production, move to a hardened access-token/session design and add CSRF protections where cookie-authenticated mutations are used.
+- Before deployment, rotate all secrets, remove demo credentials, configure least-privilege database roles, use HTTPS, review migrations, add operational monitoring and complete security/concurrency testing.
+
+## Documentation
+
+See `documentation/` for architecture, database schema, bootstrap and development notes. Use `documentation/manual-verification-checklist.md` for the local test sequence. See `SUBMISSION_STATUS.md` for the verification status and known limitations of this submission candidate.
