@@ -9,51 +9,78 @@ BalanceVault is a full-stack financial account management application designed t
 
 The platform provides account onboarding, deposits, withdrawals, transfers, transaction history, and audit visibility through dedicated account-holder, administrator, and auditor workflows.
 
+---
+
+## Table of Contents
+
+- Overview
+- Key Features
+- Application Roles
+- Technology Stack
+- System Architecture
+- Financial Transaction Design
+- Getting Started
+- Demo Credentials
+- API Overview
+- Security
+- Project Structure
+- Testing
+- Limitations
+- Future Improvements
+- Disclaimer
+- Author
+
 ## Overview
 
 Financial applications need reliable transaction processing, controlled access, accurate financial records, and traceable activities.
 
 BalanceVault addresses these requirements through database transactions, account-row locking, idempotency keys, and paired debit and credit ledger entries.
 
+It is built using React, TypeScript, Node.js, Express, PostgreSQL, and Prisma ORM.
+
+The frontend is deployed on Vercel, while the backend API is hosted on Render.
+
 ## Key Features
 
-**Authentication & Access Control**
+### Authentication & Access Control
 - User registration and login.
 - JWT-based access-token authentication.
 - HttpOnly refresh-token cookies.
 - Role-based authorization.
 - Protected application routes.
 
-**Account Management**
-- Checking and savings accounts.
+### Account Management
+- Checking and savings account support.
 - Account creation and balance lookup.
-- Account status management.
+- Account status management by administrators.
 - Account ownership validation.
 
-**Customer Onboarding**
+### Customer Onboarding
 - Account-holder onboarding submissions.
 - Onboarding status tracking.
 - Administrator review and approval workflows.
 
-**Financial Transactions**
-- Deposits and withdrawals.
+### Financial Transactions
+- Deposits.
+- Withdrawals.
 - Account-to-account transfers.
 - Transaction history.
-- Idempotency support.
+- Idempotency support for financial mutation requests.
 - Double-entry debit and credit ledger records.
 - Database transactions and account-row locking.
 
-**Audit & Administration**
+### Audit & Administration
 - Administrator account-management workspace.
 - Onboarding review workflows.
 - Read-only auditor workspace.
 - Audit event visibility.
+- Role-based access to administrative operations.
 
-**Operational Features**
+### Operational Features
 - API health and readiness endpoints.
 - Request validation using Zod.
 - Security headers with Helmet.
-- Redis rate limiting with an in-memory fallback.
+- Rate limiting with Redis and an in-memory fallback.
 
 ## Application Roles
 
@@ -62,6 +89,8 @@ BalanceVault addresses these requirements through database transactions, account
 | ADMIN | Manage accounts, review onboarding requests, and access administrative operations. |
 | ACCOUNT_HOLDER | Submit onboarding requests, access permitted accounts, and perform authorized transactions. |
 | AUDITOR | Read audit records and access permitted platform-wide transaction information. |
+
+Each role has a different level of access enforced by backend authorization.
 
 ## Technology Stack
 
@@ -77,45 +106,54 @@ BalanceVault addresses these requirements through database transactions, account
 | Validation | Zod |
 | Security | Helmet, CORS, Rate Limiting |
 | Cache / Rate Limiting | Redis with in-memory fallback |
-| Deployment | Vercel (Frontend), Render (Backend) |
+| Frontend Deployment | Vercel |
+| Backend Deployment | Render |
 
 ## System Architecture
 
 ```text
-USER / ADMIN / AUDITOR
-          |
-          v
-    React Frontend
-     (Vite + TS)
-          |
-          v
-    Vercel Hosting
-          |
-       API Requests
-          |
-          v
-   Express REST API
-    (Render Hosting)
-          |
-          v
-     Prisma ORM
-          |
-          v
-      PostgreSQL
-          |
-    +-----+------+
-    |     |      |
-    v     v      v
- Accounts Transactions Audit Logs
+             USER / ADMIN / AUDITOR
+                       |
+                       v
+                React Frontend
+                 (Vite + TS)
+                       |
+                       v
+                 Vercel Hosting
+                       |
+                  API Requests
+                       |
+                       v
+                Express REST API
+                 (Render Hosting)
+                       |
+          +------------+------------+
+          |            |            |
+          v            v            v
+     Authentication  Business    Validation
+       & Security     Logic        (Zod)
+          |            |            |
+          +------------+------------+
+                       |
+                       v
+                   Prisma ORM
+                       |
+                       v
+                   PostgreSQL
+                       |
+          +------------+------------+
+          |            |            |
+          v            v            v
+       Accounts   Transactions   Audit Logs
 ```
 
 ## Financial Transaction Design
 
 BalanceVault uses a double-entry ledger approach for financial operations.
 
-Every successful transfer is represented by corresponding debit and credit entries.
+Every successful transfer is represented by corresponding debit and credit ledger entries.
 
-Example: transferring 100 units between two accounts.
+For example, when an account transfers 100 units to another account:
 
 | Account | Entry | Amount |
 |---|---|---:|
@@ -123,41 +161,38 @@ Example: transferring 100 units between two accounts.
 | Destination Account | Credit | 100 |
 
 The application uses:
+
 - Database transactions to keep related changes atomic.
 - Account-row locking to reduce concurrent balance-update conflicts.
-- Idempotency keys to help prevent duplicate processing.
-- Paired ledger entries for transaction traceability.
+- Idempotency keys to help prevent duplicate processing when requests are retried.
+- Paired ledger entries to maintain transaction traceability.
 
 The current demo configuration uses USD with four decimal places.
 
 ## Getting Started
 
-Follow these instructions to run BalanceVault locally on Windows.
+Follow these instructions to run the BalanceVault application locally on Windows.
 
 ### Prerequisites
 
-Install:
 - Node.js 18 or later.
 - npm.
 - PostgreSQL 14 or later.
-- Git (optional).
 - Visual Studio Code (recommended).
 
-Redis is optional for local development because the application includes an in-memory fallback.
+Redis is optional for local development because the backend includes an in-memory rate-limiting fallback.
 
-### 1. Download the Project
+### 1. Open the Project
 
-1. Open the [BalanceVault GitHub repository](https://github.com/komalikotte-ai/BalanceVault).
-2. Click the green **Code** button.
-3. Select **Download ZIP**.
-4. Extract the downloaded ZIP file.
-5. Open the extracted `BalanceVault` folder in Visual Studio Code.
+Open the BalanceVault project folder in Visual Studio Code.
+
+Open a terminal in the project root directory, where the root `package.json` file is located.
 
 ### 2. Configure Environment Variables
 
-Open a terminal in the extracted project folder.
+Copy the backend environment template.
 
-Copy the backend environment template:
+**Windows CMD:**
 
 ```cmd
 copy backend\.env.example backend\.env
@@ -172,7 +207,9 @@ DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/balancevault_db
 CORS_ORIGIN="http://localhost:5173"
 ```
 
-Replace `YOUR_PASSWORD` with your PostgreSQL password and configure the remaining variables using `backend/.env.example`.
+Replace `YOUR_PASSWORD` with your PostgreSQL password.
+
+Configure all other required variables using `backend/.env.example`.
 
 Create a PostgreSQL database named:
 
@@ -182,7 +219,7 @@ balancevault_db
 
 ### 3. Install Dependencies
 
-Run this command from the project root:
+Run from the project root:
 
 ```bash
 npm ci
@@ -226,6 +263,18 @@ Backend API:
 http://localhost:5000
 ```
 
+Health check:
+
+```text
+http://localhost:5000/api/v1/health
+```
+
+Readiness check:
+
+```text
+http://localhost:5000/api/v1/ready
+```
+
 ### 8. Start the Frontend
 
 Open Terminal 2:
@@ -244,7 +293,7 @@ The frontend uses the Vite development proxy to communicate with the local backe
 
 ## Demo Credentials
 
-After successfully loading the demo seed data:
+After successfully loading the demo seed data, use the following accounts:
 
 | Role | Email | Password |
 |---|---|---|
@@ -253,7 +302,9 @@ After successfully loading the demo seed data:
 | Account Holder | alice@example.com | DemoPass123! |
 | Pending Onboarding | bob@example.com | DemoPass123! |
 
-These are public demonstration credentials. Never use them in a production environment.
+These are public demonstration credentials.
+
+Never use these credentials in a production environment.
 
 ## API Overview
 
@@ -264,4 +315,132 @@ http://localhost:5000/api/v1
 ```
 
 | Method | Endpoint | Purpose |
-|---|
+|---|---|---|
+| POST | `/auth/register` | Register an account holder |
+| POST | `/auth/login` | Authenticate a user |
+| GET | `/auth/me` | Retrieve current user information |
+| POST | `/onboarding/submit` | Submit onboarding information |
+| GET | `/onboarding/status` | Retrieve onboarding status |
+| GET | `/admin/onboardings` | View onboarding requests |
+| PATCH | `/admin/onboardings/:id/review` | Review an onboarding request |
+| GET / POST | `/accounts` | Retrieve or create accounts |
+| PATCH | `/admin/accounts/:id/status` | Update account status |
+| POST | `/transactions/deposit` | Process a deposit |
+| POST | `/transactions/withdraw` | Process a withdrawal |
+| POST | `/transactions/transfer` | Process an account transfer |
+| GET | `/transactions` | Retrieve permitted transaction history |
+| GET | `/auditor/audit-logs` | Retrieve audit events |
+| GET | `/health` | Check API health |
+| GET | `/ready` | Check API readiness |
+
+Access to endpoints is controlled by authentication, role authorization, and account ownership rules.
+
+Financial mutation requests accept an `Idempotency-Key` header or an `idempotencyKey` body property.
+
+## Security
+
+BalanceVault incorporates several security-related mechanisms:
+
+- Argon2 password hashing.
+- JWT access-token authentication.
+- HttpOnly refresh-token cookies.
+- Role-based authorization.
+- Account ownership checks.
+- Request validation using Zod.
+- HTTP security headers through Helmet.
+- CORS configuration.
+- Rate limiting.
+- Database transaction handling.
+- Idempotency support for financial operations.
+- Audit event recording.
+
+Security configuration and deployment secrets must be managed separately from source code.
+
+## Project Structure
+
+```text
+BalanceVault/
+│
+├── backend/
+│   ├── prisma/
+│   └── src/
+│       ├── config/
+│       ├── controllers/
+│       ├── middleware/
+│       ├── routes/
+│       ├── services/
+│       └── server.ts
+│
+├── frontend/
+│   ├── public/
+│   └── src/
+│       ├── components/
+│       ├── context/
+│       ├── pages/
+│       └── main.tsx
+│
+├── documentation/
+├── .env.example
+├── .gitignore
+├── package.json
+├── package-lock.json
+├── README.md
+├── SUBMISSION_STATUS.md
+├── THREATS.md
+└── PROMPTS.md
+```
+
+## Testing
+
+Run backend tests from the project root:
+
+```bash
+npm test
+```
+
+Build the complete project:
+
+```bash
+npm run build
+```
+
+The current backend test suite connects through `DATABASE_URL` and expects demo seed data.
+
+Use a disposable test database when running tests. Do not use a database containing personal or important information.
+
+## Limitations
+
+BalanceVault is an educational and demonstration project. Some capabilities remain limited:
+
+- The auditor role currently has read-only platform-wide visibility; per-account auditor permissions are not implemented.
+- Advanced audit-log filtering and export are not implemented.
+- Redis is optional in local development; the in-memory fallback is not suitable for distributed production rate limiting.
+- The supplied frontend stores access tokens in browser local storage. A hardened session design and additional CSRF protections are recommended.
+- The application has not undergone an independent security audit.
+- The demo currency configuration uses USD and is not a multi-currency payment system.
+
+## Future Improvements
+
+- Automated end-to-end testing.
+- Advanced audit filtering and export.
+- Improved session and token security.
+- Persistent distributed rate limiting.
+- Expanded monitoring and operational logging.
+- Stronger concurrency and security testing.
+- Multi-currency support with coordinated ledger and validation changes.
+
+## Disclaimer
+
+BalanceVault is an educational software project demonstrating financial application concepts.
+
+It is not a regulated banking platform, payment processor, or production-ready financial service. Do not use it to manage real funds or sensitive financial information.
+
+## Author
+
+**Komali Kotte**
+
+GitHub: [@komalikotte-ai](https://github.com/komalikotte-ai)
+
+Project: BalanceVault
+
+Live Demo: https://balancevault-beryl.vercel.app/
