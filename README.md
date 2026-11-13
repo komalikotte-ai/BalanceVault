@@ -1,242 +1,242 @@
 # BalanceVault
-### Secure Financial Management Platform with Double-Entry Ledger
 
-BalanceVault is a full-stack financial management platform designed to support secure account operations, reliable financial transactions, and transparent record keeping. It combines role-based access control, account management, and double-entry ledger functionality to improve transaction integrity and accountability.
+**A Secure Financial Management Platform with Double-Entry Ledger**
 
----
+BalanceVault is a full-stack financial management application designed to support secure account operations, reliable money transfers, and transparent transaction tracking. It provides role-based access, account management, financial transactions, and ledger-based transaction records.
 
-## 🌐 Live Application
+## Live Application
 
 | Component | Link |
 |---|---|
-| Live Application | https://balancevault-beryl.vercel.app/ |
-| Backend Health Check | https://balancevault-api-ztfa.onrender.com/api/v1/health |
-| GitHub Repository | https://github.com/komalikotte-ai/BalanceVault |
+| Frontend | https://balancevault-beryl.vercel.app/ |
+| Backend API | https://balancevault-api-ztfa.onrender.com/ |
+| API Health | https://balancevault-api-ztfa.onrender.com/api/v1/health |
 
----
 
-## 📑 Table of Contents
+## Table of Contents
 
-1. Project Overview
-2. User Roles and Access
-3. Core Features
-4. Financial Operations and Ledger
-5. Application Architecture
-6. Security and Reliability
-7. Deployment
-8. Local Setup
-9. Testing and Build
-10. Current Limitations
-11. Future Enhancements
+- Project Overview
+- User Roles
+- Core Features
+- Financial Operations
+- Double-Entry Ledger
+- Application Architecture
+- Security and Reliability
+- Deployment
+- Local Setup
+- Testing and Build
+- Current Limitations
+- Future Enhancements
 
----
+## Project Overview
 
-## 1. Project Overview
+BalanceVault is designed to demonstrate secure financial operations through a structured full-stack application. It supports account creation, account approval, deposits, withdrawals, fund transfers, transaction history, and audit visibility.
 
-BalanceVault provides a centralized platform for managing financial accounts, processing transactions, and maintaining traceable financial records.
+The platform uses a double-entry ledger approach to maintain corresponding debit and credit records for financial transactions.
 
-The application supports three distinct roles with different permissions, allowing users to perform financial operations while administrators manage account workflows and auditors review activity.
+## User Roles
 
-## 2. User Roles and Access
-
-| Role | Access and Responsibilities |
+| Role | Access |
 |---|---|
-| ADMIN | Manage users, review onboarding requests, approve accounts, and oversee platform operations. |
-| ACCOUNT_HOLDER | Manage personal accounts, perform permitted financial operations, and view transaction history. |
-| AUDITOR | Review audit records and financial activity with read-only access. |
+| Admin | User and account management, account approval, and administrative operations |
+| Account Holder | Account access, deposits, withdrawals, transfers, and transaction history |
+| Auditor | Read-only access to transaction and audit information |
 
-## 3. Core Features
+## Core Features
 
-**Authentication and User Management**
-- User registration and login.
-- JWT-based authentication.
-- Argon2 password hashing.
-- Protected routes and role-based authorization.
+### Authentication and User Management
+- User registration and login
+- JWT-based authentication
+- Protected application routes
+- Role-based access control
 
-**Account Management**
-- Checking and savings account support.
-- Account creation and onboarding workflows.
-- Administrative account approval.
-- Account status and management operations.
+### Account Management
+- Checking and savings account support
+- Account creation
+- Account approval workflow
+- Account balance tracking
 
-**Financial Transactions**
-- Deposits and withdrawals.
-- Transfers between accounts.
-- Transaction history and status tracking.
-- Idempotency handling to help prevent duplicate processing.
+### Financial Transactions
+- Deposit operations
+- Withdrawal operations
+- Fund transfers between accounts
+- Transaction history
+- Transaction status tracking
+- Idempotency support for transaction requests
 
-**Dashboards and Audit**
-- Role-specific dashboards.
-- Account and transaction summaries.
-- Administrative account management.
-- Auditor access to audit records.
+### Dashboard and Audit
+- Role-based dashboard views
+- Account and transaction information
+- Financial activity visibility
+- Audit-oriented transaction records
 
-## 4. Financial Operations and Double-Entry Ledger
-
-BalanceVault uses a double-entry ledger approach to record financial transactions through corresponding debit and credit entries.
+## Financial Operations
 
 | Operation | Description |
 |---|---|
-| Deposit | Records a deposit into an eligible account and its corresponding ledger entries. |
-| Withdrawal | Records a withdrawal and its corresponding ledger entries. |
-| Transfer | Records the debit and credit entries associated with a transfer between accounts. |
+| Deposit | Adds funds to an account |
+| Withdrawal | Deducts funds from an account |
+| Transfer | Moves funds between accounts |
+| Account Approval | Allows administrative approval of accounts |
+| Transaction History | Displays recorded financial activities |
 
-**Transaction integrity mechanisms include:**
+## Double-Entry Ledger
 
-- Double-entry ledger records.
-- Database transaction handling.
-- Account-row locking to help prevent conflicting concurrent updates.
-- Idempotency handling for repeated requests.
-- Transaction history for traceability.
+BalanceVault uses a double-entry ledger approach to record financial activity. Each supported financial transaction is represented through corresponding debit and credit entries.
 
-## 5. Application Architecture
+### Transaction Integrity
 
-BalanceVault follows a frontend-backend architecture.
+- Database transactions for financial operations
+- Account-level locking to help prevent conflicting balance updates
+- Idempotency handling to reduce duplicate transaction processing
+- Structured transaction records for traceability
 
-**Frontend**
-- React and TypeScript.
-- Vite-based development and production builds.
-- React Router for navigation.
-- Role-specific dashboards and protected application routes.
-- Backend API integration.
-- Lucide React interface icons.
+## Application Architecture
 
-**Backend**
-- Node.js, Express, and TypeScript.
-- REST APIs for authentication, accounts, and transactions.
-- Authentication and authorization middleware.
-- Argon2 password hashing.
-- Zod request validation.
-- Helmet security headers and CORS configuration.
-- Centralized error handling.
+### Frontend
+- React
+- TypeScript
+- Vite
+- React Router
+- Lucide React
 
-**Database and Supporting Services**
-- PostgreSQL for persistent data storage.
-- Prisma ORM for database operations.
-- Database migrations and seed support.
-- Redis-based rate limiting with an in-memory fallback.
+### Backend
+- Node.js
+- Express.js
+- TypeScript
+- REST API
+- JWT authentication
+- Argon2 password hashing
+- Zod validation
+- Helmet security middleware
+- CORS configuration
 
-## 6. Security and Reliability
+### Database and Supporting Services
+- PostgreSQL
+- Prisma ORM
+- Database migrations
+- Database seeding
+- Redis integration with an in-memory fallback
 
-The application incorporates several security and reliability measures:
+## Security and Reliability
 
-- JWT-based authentication.
-- Argon2 password hashing.
-- Role-based access control.
-- Protected API endpoints.
-- Request validation using Zod.
-- HTTP security headers using Helmet.
-- CORS configuration.
-- HttpOnly refresh-token cookies.
-- Environment-based configuration for sensitive values.
-- Database transactions and account-row locking for financial operations.
-- Idempotency handling to reduce duplicate transaction processing.
+- JWT-based authentication
+- Password hashing
+- Role-based authorization
+- Protected API endpoints
+- Request validation
+- Security headers through Helmet
+- CORS configuration
+- Database-backed transaction processing
+- Idempotency handling for financial operations
 
-## 7. Deployment
+## Deployment
 
-The application is deployed using separate frontend and backend services.
-
-| Component | Platform |
+| Service | Platform |
 |---|---|
 | Frontend | Vercel |
 | Backend API | Render |
 | Database | PostgreSQL |
 
-The deployed frontend communicates with the backend through the configured production API routing.
+The frontend and backend are deployed separately and communicate through the backend REST API.
 
-## 8. Local Setup
+## Local Setup
 
 ### Prerequisites
 
 - Node.js
 - npm
 - PostgreSQL
+- Git
+- VS Code or another code editor
 
-### Step 1: Open the Project
+### Environment Configuration
 
-Open the existing BalanceVault project folder in Visual Studio Code.
+Create the backend environment file using the provided example:
 
-### Step 2: Configure Environment Variables
-
-Create the backend environment file:
-
-```bash
+```cmd
 copy backend\.env.example backend\.env
 ```
 
-Configure the required environment variables using the provided template, including the PostgreSQL connection URL, JWT secrets, and CORS origin.
+Configure the required environment variables in `backend/.env`, including:
 
-### Step 3: Install Dependencies
+```env
+DATABASE_URL=
+JWT_SECRET=
+JWT_REFRESH_SECRET=
+ADMIN_BOOTSTRAP_SECRET=
+CORS_ORIGIN=
+```
 
-Run from the project root:
+Use appropriate local database credentials and secure secret values.
+
+### Installation
+
+Install project dependencies:
 
 ```bash
 npm ci
 ```
 
-### Step 4: Generate Prisma Client
+Generate the Prisma client:
 
 ```bash
 npm run prisma:generate --workspace=backend
 ```
 
-### Step 5: Run Database Migrations
+Run database migrations:
 
 ```bash
 npm run prisma:migrate --workspace=backend
 ```
 
-### Step 6: Start the Backend
+### Start the Application
 
-Open a terminal in the project root:
+Start the backend:
 
 ```bash
 npm run dev:backend
 ```
 
-### Step 7: Start the Frontend
-
-Open a second terminal in the project root:
+Start the frontend in a separate terminal:
 
 ```bash
 npm run dev:frontend
 ```
 
-Open the application at:
+### Local Application URLs
 
-http://localhost:5173
+| Component | URL |
+|---|---|
+| Frontend | http://localhost:5173 |
+| Backend | http://localhost:5000 |
+| API Health | http://localhost:5000/api/v1/health |
+| API Readiness | http://localhost:5000/api/v1/ready |
 
-## 9. Testing and Build
+## Testing and Build
 
-The project provides npm scripts for running tests and building the application.
-
-**Run tests:**
+Run the project tests:
 
 ```bash
 npm test
 ```
 
-**Build the application:**
+Build the application:
 
 ```bash
 npm run build
 ```
 
-The frontend production build has been verified successfully, and the deployed backend health endpoint has returned a successful response.
+The frontend production build has been verified, and the deployed backend health endpoint has returned a successful response.
 
-## 10. Current Limitations
+## Current Limitations
 
-- Additional end-to-end testing is needed for administrative and auditor workflows.
-- The in-memory rate-limit fallback is not suitable for distributed production deployments.
-- Advanced audit filtering and export functionality can be expanded.
-- Additional automated integration and frontend test coverage is needed.
-- Further security hardening and independent security testing are recommended.
-- Multi-currency support is not currently implemented.
+- Additional automated and end-to-end test coverage is needed.
+- The in-memory fallback is not a replacement for shared Redis in a distributed production deployment.
+- Advanced audit filtering and export capabilities can be expanded.
+- Additional security hardening and independent security testing are recommended.
+- Multi-currency support is not currently included.
 
-## 11. Future Enhancements
+## Conclusion
 
-- Advanced audit reports and export functionality.
-- External Redis configuration for distributed rate limiting.
-- Expanded automated integration and frontend testing.
-- Improved production security and monitoring.
-- Multi-currency account support.
+BalanceVault brings together secure authentication, role-based access, account management, financial transactions, and double-entry ledger functionality in a full-stack financial management application. The project demonstrates the integration of modern web technologies with database-driven financial operations, focusing on transaction integrity, security, and transparency.
